@@ -23,10 +23,16 @@
   "files": [
     "..\\..\\..\\src\\pages\\Customer Testimonials.vmckr.js"
   ],
+  "references": [
+    {
+      "path": "..\\backend\\jsconfig.json"
+    },
+    {
+      "path": "..\\public\\jsconfig.json"
+    }
+  ],
   "include": [
     "vmckr.d.ts",
-    "..\\..\\..\\src\\public\\**\\*",
-    "..\\..\\..\\src\\backend\\**\\*.web.js",
     "..\\backend.d.ts"
   ]
 }

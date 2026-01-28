@@ -23,10 +23,16 @@
   "files": [
     "..\\..\\..\\src\\pages\\New Page.cw8jz.js"
   ],
+  "references": [
+    {
+      "path": "..\\backend\\jsconfig.json"
+    },
+    {
+      "path": "..\\public\\jsconfig.json"
+    }
+  ],
   "include": [
     "cw8jz.d.ts",
-    "..\\..\\..\\src\\public\\**\\*",
-    "..\\..\\..\\src\\backend\\**\\*.web.js",
     "..\\backend.d.ts"
   ]
 }

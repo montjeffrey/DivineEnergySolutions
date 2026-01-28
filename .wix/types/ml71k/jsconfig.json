@@ -23,10 +23,16 @@
   "files": [
     "..\\..\\..\\src\\pages\\Manual J & S Heating and Cooling Load .ml71k.js"
   ],
+  "references": [
+    {
+      "path": "..\\backend\\jsconfig.json"
+    },
+    {
+      "path": "..\\public\\jsconfig.json"
+    }
+  ],
   "include": [
     "ml71k.d.ts",
-    "..\\..\\..\\src\\public\\**\\*",
-    "..\\..\\..\\src\\backend\\**\\*.web.js",
     "..\\backend.d.ts"
   ]
 }
