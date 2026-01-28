@@ -1,0 +1,40 @@
+/// <reference path="..\masterPage\masterPage.d.ts" />
+type PageElementsMap = MasterPageElementsMap & {
+	"#text11": $w.Text;
+	"#section1": $w.Section;
+	"#text19": $w.Text;
+	"#section5": $w.Section;
+	"#columnStrip4": $w.ColumnStrip;
+	"#column80": $w.Column;
+	"#text37": $w.Text;
+	"#section6": $w.Section;
+	"#text39": $w.Text;
+	"#text40": $w.Text;
+	"#text41": $w.Text;
+	"#image7": $w.Image;
+	"#image8": $w.Image;
+	"#image9": $w.Image;
+	"#image10": $w.Image;
+	"#image11": $w.Image;
+	"#image13": $w.Image;
+	"#image14": $w.Image;
+	"#image15": $w.Image;
+	"#image16": $w.Image;
+	"#image17": $w.Image;
+	"#image18": $w.Image;
+	"#image19": $w.Image;
+	"#image20": $w.Image;
+	"#image21": $w.Image;
+	"#image22": $w.Image;
+	"#image23": $w.Image;
+	"#text42": $w.Text;
+	"#image24": $w.Image;
+	"#button4": $w.Button;
+	"#button5": $w.Button;
+	"#section7": $w.Section;
+	"#html2": $w.HtmlComponent;
+	"#section8": $w.Section;
+	"#googleReviewsSiteWidget1": $w.CustomElement;
+	"#text43": $w.Text;
+	"#page1": $w.Page;
+}

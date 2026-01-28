@@ -1,0 +1,46 @@
+/// <reference path="..\masterPage\masterPage.d.ts" />
+type PageElementsMap = MasterPageElementsMap & {
+	"#Section1Regular": $w.Section;
+	"#columnStrip13": $w.ColumnStrip;
+	"#column24": $w.Column;
+	"#text1": $w.Text;
+	"#column25": $w.Column;
+	"#Section1RegularLongtext1": $w.Text;
+	"#Section2Regular": $w.Section;
+	"#columnStrip14": $w.ColumnStrip;
+	"#column27": $w.Column;
+	"#Section2RegularTitle1": $w.Text;
+	"#Section2RegularSubtitle1": $w.Text;
+	"#Section2RegularLongtext1": $w.Text;
+	"#text25": $w.Text;
+	"#section3": $w.Section;
+	"#columnStrip17": $w.ColumnStrip;
+	"#column30": $w.Column;
+	"#text29": $w.Text;
+	"#text28": $w.Text;
+	"#text27": $w.Text;
+	"#text26": $w.Text;
+	"#text30": $w.Text;
+	"#image1": $w.Image;
+	"#section4": $w.Section;
+	"#columnStrip18": $w.ColumnStrip;
+	"#column31": $w.Column;
+	"#text35": $w.Text;
+	"#text34": $w.Text;
+	"#text33": $w.Text;
+	"#text32": $w.Text;
+	"#text31": $w.Text;
+	"#image2": $w.Image;
+	"#image3": $w.Image;
+	"#image5": $w.Image;
+	"#button4": $w.Button;
+	"#button5": $w.Button;
+	"#Section1RegularPlusMediaImage1RuleNoFaceImage": $w.Section;
+	"#section1container1": $w.Box;
+	"#Section1RegularTitle1": $w.Text;
+	"#text36": $w.Text;
+	"#button6": $w.Button;
+	"#button7": $w.Button;
+	"#beforeAfterGallery2": $w.CustomElement;
+	"#page1": $w.Page;
+}
