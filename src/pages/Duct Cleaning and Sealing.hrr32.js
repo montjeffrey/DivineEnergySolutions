@@ -1,10 +1,11 @@
-// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
-// “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
-
+import wixWindow from 'wix-window';
 $w.onReady(function () {
-    // Write your JavaScript here
-
-    // To select an element by ID use: $w('#elementID')
-
-    // Click 'Preview' to run your code
+    // Listen for messages from the HTML Component
+    $w("#html1").onMessage((event) => {
+        // Check if the message is the correct command
+        if (event.data === "openAerosealModal") {
+            // Open the Lightbox named "AerosealDeepDive"
+            wixWindow.openLightbox("AerosealDeepDive");
+        }
+    });
 });
