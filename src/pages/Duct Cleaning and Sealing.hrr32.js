@@ -1,4 +1,5 @@
 import wixWindow from 'wix-window';
+import wixLocation from 'wix-location';
 
 $w.onReady(function () {
     // State management for preventing spam clicks
@@ -14,37 +15,50 @@ $w.onReady(function () {
             return;
         }
 
-        // Check if the message is the correct command
+        const currentTime = Date.now();
+
+        // Debounce check: prevent multiple calls within the debounce delay
+        if (currentTime - lastClickTime < DEBOUNCE_DELAY) {
+            console.log('Action ignored: Too soon after previous action');
+            return;
+        }
+
+        // Prevent multiple simultaneous operations
+        if (isProcessing) {
+            console.log('Action ignored: Already processing');
+            return;
+        }
+
+        // Check the message content
         if (event.data === "openAerosealModal") {
-            const currentTime = Date.now();
-
-            // Debounce check: prevent multiple calls within the debounce delay
-            if (currentTime - lastClickTime < DEBOUNCE_DELAY) {
-                console.log('Action ignored: Too soon after previous action');
-                return;
-            }
-
-            // Prevent multiple simultaneous operations
-            if (isProcessing) {
-                console.log('Action ignored: Already processing');
-                return;
-            }
-
-            // Set processing state
-            isProcessing = true;
-            lastClickTime = currentTime;
-
-            // Open the Lightbox named "AerosealDeepDive"
-            wixWindow.openLightbox("AerosealDeepDive")
-                .then(() => {
-                    // Reset processing state after lightbox is opened
-                    isProcessing = false;
-                })
-                .catch((error) => {
-                    // Handle errors and reset state
-                    console.error('Error opening lightbox:', error);
-                    isProcessing = false;
-                });
+            handleAction(() => wixWindow.openLightbox("AerosealDeepDive"));
+        } else if (event.data === "navigateAeroseal") {
+            handleAction(() => wixLocation.to("/aeroseal"));
+        } else if (event.data === "navigateAerobarrier") {
+            handleAction(() => wixLocation.to("/aerobarrier"));
         }
     });
+
+    /**
+     * Helper to handle actions with processing state
+     * @param {Function} actionFn function that returns a promise or void
+     */
+    function handleAction(actionFn) {
+        isProcessing = true;
+        lastClickTime = Date.now();
+
+        try {
+            const result = actionFn();
+            if (result instanceof Promise) {
+                result.finally(() => {
+                    isProcessing = false;
+                });
+            } else {
+                isProcessing = false;
+            }
+        } catch (error) {
+            console.error('Error executing action:', error);
+            isProcessing = false;
+        }
+    }
 });
