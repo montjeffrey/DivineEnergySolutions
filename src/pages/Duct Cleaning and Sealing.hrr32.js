@@ -76,6 +76,7 @@ $w.onReady(function () {
 */
 export function navigateToAerobarrier(event) {
     console.log("Duct Cleaning: Navigate to Aerobarrier button clicked.");
-    session.setItem("fromDuctCleaning", "true");
-    wixLocation.to("/aerobarrier");
+    // NO session storage. Just a direct link with a "source" tag.
+    // This is much more reliable for "one-time" detection.
+    wixLocation.to("/aerobarrier?source=duct");
 }
