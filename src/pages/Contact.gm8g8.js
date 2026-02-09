@@ -1,5 +1,5 @@
 // 1. Import the backend function
-import { getMapsApiKey } from 'backend/googleMaps';
+import { getMapsApiKey } from 'backend/googleMaps.jsw';
 
 $w.onReady(async function () {
     const mapComponent = $w('#googleMapsEmbed');
