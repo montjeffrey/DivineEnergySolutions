@@ -10,6 +10,8 @@ $w.onReady(function () {
 
     // Listen for messages from the HTML Component
     $w("#html1").onMessage((event) => {
+        console.log("Duct Cleaning: Received message from HTML Component:", event.data);
+
         // Validate message data exists and is a string
         if (!event || typeof event.data !== 'string') {
             console.warn('Invalid message received:', event);
@@ -17,6 +19,7 @@ $w.onReady(function () {
         }
 
         const currentTime = Date.now();
+        console.log("Duct Cleaning: Message content check:", event.data);
 
         // Debounce check: prevent multiple calls within the debounce delay
         if (currentTime - lastClickTime < DEBOUNCE_DELAY) {
