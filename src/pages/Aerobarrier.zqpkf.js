@@ -14,12 +14,14 @@ $w.onReady(function () {
     const isFromDuctCleaning = (fromDuctCleaning === "true");
 
     if (isFromDuctCleaning) {
-        console.log("Valid session flag detected. Showing back button.");
+        console.log("Valid session flag detected. Showing and Expanding back button.");
+        backButton.expand();
         backButton.show();
         // Clear session to prevent sticky behavior (so refreshing the page hides the button again if desired)
         session.removeItem("fromDuctCleaning");
     } else {
         console.log("No valid session flag. Hiding back button.");
         backButton.hide();
+        backButton.collapse();
     }
 });
