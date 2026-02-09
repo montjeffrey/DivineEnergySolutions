@@ -1,0 +1,24 @@
+// Backend module to securely retrieve Google Maps API Key from Wix Secrets Manager
+import { getSecret } from 'wix-secrets-backend';
+
+/**
+ * Retrieves the Google Maps API key from Wix Secrets Manager
+ * @returns {Promise<string>} The Google Maps API key
+ */
+export async function getMapsApiKey() {
+    try {
+        // IMPORTANT: The secret name must match exactly what you named it in Wix Secrets Manager
+        // Replace "googleMapsApiKey" below with your exact secret name if different
+        const apiKey = await getSecret("googleMapsApiKey");
+
+        if (!apiKey) {
+            console.error("Google Maps API key not found in Secrets Manager");
+            throw new Error("API key not configured");
+        }
+
+        return apiKey;
+    } catch (error) {
+        console.error("Error retrieving Google Maps API key:", error);
+        throw error;
+    }
+}
