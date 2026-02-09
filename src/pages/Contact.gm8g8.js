@@ -1,10 +1,11 @@
-// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
-// “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
+import { getMapsApiKey } from 'backend/googleMaps';
 
-$w.onReady(function () {
-    // Write your JavaScript here
-
-    // To select an element by ID use: $w('#elementID')
-
-    // Click 'Preview' to run your code
+$w.onReady(async function () {
+    try {
+        const apiKey = await getMapsApiKey();
+        // Make sure your HTML component ID matches '#googleMapsEmbed' or whatever ID you used
+        $w('#googleMapsEmbed').postMessage(apiKey);
+    } catch (error) {
+        console.error("Failed to load map key", error);
+    }
 });
