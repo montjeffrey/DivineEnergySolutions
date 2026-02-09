@@ -86,7 +86,6 @@ export function navigateToAerobarrier(event) {
 
 /**
 * Exported function to be called by the "Aeroseal" button on the Wix page.
-* You must connect this function to the button's onClick event in the Properties panel.
 */
 export function navigateToAeroseal(event) {
     console.log("Duct Cleaning: Navigate to Aeroseal button clicked.");

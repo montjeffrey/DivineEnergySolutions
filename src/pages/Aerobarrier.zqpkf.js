@@ -11,18 +11,16 @@ $w.onReady(function () {
     // Check query parameters
     const query = wixLocation.query;
     const fromDuctCleaningQuery = query.source === "duct";
-    const isTestSite = query.rc === "test-site";
 
     // Debugging logs
     console.log("Debug: Session 'fromDuctCleaning':", fromDuctCleaningSession);
     console.log("Debug: Query 'source':", query.source);
-    console.log("Debug: Query 'rc':", query.rc);
 
     // IMMEDIATELY clear the flag so it cannot persist on refresh or subsequent visits
     session.removeItem("fromDuctCleaning");
 
     // Check if ANY valid condition is met
-    if (fromDuctCleaningSession === "true" || fromDuctCleaningQuery || isTestSite) {
+    if (fromDuctCleaningSession === "true" || fromDuctCleaningQuery) {
         console.log("Valid navigation detected. Showing back button.");
         backButton.expand();
         backButton.show();
