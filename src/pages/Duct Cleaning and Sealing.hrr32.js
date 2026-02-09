@@ -69,3 +69,13 @@ $w.onReady(function () {
         }
     }
 });
+
+/**
+* Exported function to be called by the "Aerobarrier" button on the Wix page.
+* You must connect this function to the button's onClick event in the Properties panel.
+*/
+export function navigateToAerobarrier(event) {
+    console.log("Duct Cleaning: Navigate to Aerobarrier button clicked.");
+    session.setItem("fromDuctCleaning", "true");
+    wixLocation.to("/aerobarrier");
+}

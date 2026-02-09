@@ -8,20 +8,18 @@ $w.onReady(function () {
 
     // Debugging log
     console.log("Debug: fromDuctCleaning session flag:", fromDuctCleaning);
-    console.log("Debug: wixWindow.referrer:", referrer);
 
-    // Check if the session flag is set OR if the referrer matches
-    // This provides a fallback if session storage fails or isn't set
+    // Check STRICTLY if the session flag is set
+    // We removed the referrer check to ensure the button ONLY appears when coming from the specific button click
     const isFromDuctCleaning = (fromDuctCleaning === "true");
-    const isFromReferrer = referrer && (referrer.includes("duct-cleaning-and-sealing") || referrer.includes("aeroseal"));
 
-    if (isFromDuctCleaning || isFromReferrer) {
-        console.log("Valid source detected (Session: " + isFromDuctCleaning + ", Referrer: " + isFromReferrer + "). Showing back button.");
+    if (isFromDuctCleaning) {
+        console.log("Valid session flag detected. Showing back button.");
         backButton.show();
-        // Clear session to prevent sticky behavior (optional, but good for testing)
-        // session.removeItem("fromDuctCleaning"); 
+        // Clear session to prevent sticky behavior (so refreshing the page hides the button again if desired)
+        session.removeItem("fromDuctCleaning");
     } else {
-        console.log("No valid source detected. Hiding back button.");
+        console.log("No valid session flag. Hiding back button.");
         backButton.hide();
     }
 });
