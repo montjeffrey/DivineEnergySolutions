@@ -4,10 +4,10 @@
   },
   "references": [
     {
-      "path": ".wix\\types\\cagtq\\jsconfig.json"
+      "path": ".wix\\types\\bi8m8\\jsconfig.json"
     },
     {
-      "path": ".wix\\types\\cw8jz\\jsconfig.json"
+      "path": ".wix\\types\\cagtq\\jsconfig.json"
     },
     {
       "path": ".wix\\types\\eowm8\\jsconfig.json"
@@ -59,6 +59,9 @@
     },
     {
       "path": ".wix\\types\\zqpkf\\jsconfig.json"
+    },
+    {
+      "path": ".wix\\types\\drtxu\\jsconfig.json"
     },
     {
       "path": ".wix\\types\\gr0o9\\jsconfig.json"
