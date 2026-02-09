@@ -1,10 +1,34 @@
-// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
-// “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
+import wixWindow from 'wix-window';
+import { session } from 'wix-storage';
+import wixLocation from 'wix-location';
 
 $w.onReady(function () {
-    // Write your JavaScript here
+    const backButton = $w('#back-button');
 
-    // To select an element by ID use: $w('#elementID')
+    // Check session storage
+    const fromDuctCleaningSession = session.getItem("fromDuctCleaning");
 
-    // Click 'Preview' to run your code
+    // Check query parameters
+    const query = wixLocation.query;
+    const fromDuctCleaningQuery = query.source === "duct";
+    const isTestSite = query.rc === "test-site";
+
+    // Debugging logs
+    console.log("Debug (Aeroseal): Session 'fromDuctCleaning':", fromDuctCleaningSession);
+    console.log("Debug (Aeroseal): Query 'source':", query.source);
+    console.log("Debug (Aeroseal): Query 'rc':", query.rc);
+
+    // IMMEDIATELY clear the flag so it cannot persist on refresh or subsequent visits
+    session.removeItem("fromDuctCleaning");
+
+    // Check if ANY valid condition is met
+    if (fromDuctCleaningSession === "true" || fromDuctCleaningQuery || isTestSite) {
+        console.log("Valid navigation detected. Showing back button.");
+        backButton.expand();
+        backButton.show();
+    } else {
+        console.log("No valid navigation detected. Hiding back button.");
+        backButton.hide();
+        backButton.collapse();
+    }
 });

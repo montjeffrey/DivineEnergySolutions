@@ -37,7 +37,10 @@ $w.onReady(function () {
         if (event.data === "openAerosealModal") {
             handleAction(() => wixWindow.openLightbox("AerosealDeepDive"));
         } else if (event.data === "navigateAeroseal") {
-            handleAction(() => wixLocation.to("/aeroseal"));
+            handleAction(() => {
+                session.setItem("fromDuctCleaning", "true");
+                wixLocation.to("/aeroseal");
+            });
         } else if (event.data === "navigateAerobarrier") {
             handleAction(() => {
                 session.setItem("fromDuctCleaning", "true");
@@ -79,4 +82,13 @@ export function navigateToAerobarrier(event) {
     // NO session storage. Just a direct link with a "source" tag.
     // This is much more reliable for "one-time" detection.
     wixLocation.to("/aerobarrier?source=duct");
+}
+
+/**
+* Exported function to be called by the "Aeroseal" button on the Wix page.
+* You must connect this function to the button's onClick event in the Properties panel.
+*/
+export function navigateToAeroseal(event) {
+    console.log("Duct Cleaning: Navigate to Aeroseal button clicked.");
+    wixLocation.to("/aeroseal?source=duct");
 }
