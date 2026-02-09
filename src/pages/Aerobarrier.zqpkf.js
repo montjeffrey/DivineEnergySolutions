@@ -1,23 +1,33 @@
 import wixWindow from 'wix-window';
 import { session } from 'wix-storage';
+import wixLocation from 'wix-location';
 
 $w.onReady(function () {
     const backButton = $w('#back-button');
-    const fromDuctCleaning = session.getItem("fromDuctCleaning");
+
+    // Check session storage
+    const fromDuctCleaningSession = session.getItem("fromDuctCleaning");
+
+    // Check query parameters
+    const query = wixLocation.query;
+    const fromDuctCleaningQuery = query.source === "duct";
+    const isTestSite = query.rc === "test-site";
+
+    // Debugging logs
+    console.log("Debug: Session 'fromDuctCleaning':", fromDuctCleaningSession);
+    console.log("Debug: Query 'source':", query.source);
+    console.log("Debug: Query 'rc':", query.rc);
 
     // IMMEDIATELY clear the flag so it cannot persist on refresh or subsequent visits
     session.removeItem("fromDuctCleaning");
 
-    // Debugging log
-    console.log("Debug: fromDuctCleaning session flag was:", fromDuctCleaning);
-
-    // Check STRICTLY if the session flag WAS set
-    if (fromDuctCleaning === "true") {
-        console.log("Valid session flag detected. Showing and Expanding back button.");
+    // Check if ANY valid condition is met
+    if (fromDuctCleaningSession === "true" || fromDuctCleaningQuery || isTestSite) {
+        console.log("Valid navigation detected. Showing back button.");
         backButton.expand();
         backButton.show();
     } else {
-        console.log("No valid session flag. Hiding back button.");
+        console.log("No valid navigation detected. Hiding back button.");
         backButton.hide();
         backButton.collapse();
     }
