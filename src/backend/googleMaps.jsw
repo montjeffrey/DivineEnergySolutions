@@ -12,13 +12,11 @@ export async function getMapsApiKey() {
         const apiKey = await getSecret("googleMapsApiKey");
 
         if (!apiKey) {
-            console.error("Google Maps API key not found in Secrets Manager");
             throw new Error("API key not configured");
         }
 
         return apiKey;
     } catch (error) {
-        console.error("Error retrieving Google Maps API key:", error);
         throw error;
     }
 }
