@@ -1,18 +1,21 @@
-// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
-// “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
 import wixWindow from 'wix-window';
+import { session } from 'wix-storage';
 
 $w.onReady(function () {
-    const referrer = wixWindow.referrer;
     const backButton = $w('#back-button');
+    const fromDuctCleaning = session.getItem("fromDuctCleaning");
 
-    // Check if the user came from the "duct-cleaning-and-sealing" or "aeroseal" page
-    // We check for the slug or part of the URL, ensuring query params don't break it
-    if (referrer && (referrer.includes("duct-cleaning-and-sealing") || referrer.includes("aeroseal"))) {
-        console.log("Referrer check: MATCH. User came from:", referrer);
+    // Debugging log
+    console.log("Debug: fromDuctCleaning session flag is:", fromDuctCleaning);
+
+    // Check if the session flag is set
+    if (fromDuctCleaning === "true") {
+        console.log("Session flag found. Showing back button.");
         backButton.show();
+        // Optional: specific logic to handle back navigation if needed, 
+        // but the button itself likely has a link or check
     } else {
-        console.log("Referrer check: NO MATCH. User came from:", referrer);
+        console.log("Session flag NOT found. Hiding back button.");
         backButton.hide();
     }
 });

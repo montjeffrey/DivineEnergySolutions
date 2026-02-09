@@ -1,5 +1,6 @@
 import wixWindow from 'wix-window';
 import wixLocation from 'wix-location';
+import { session } from 'wix-storage';
 
 $w.onReady(function () {
     // State management for preventing spam clicks
@@ -35,7 +36,10 @@ $w.onReady(function () {
         } else if (event.data === "navigateAeroseal") {
             handleAction(() => wixLocation.to("/aeroseal"));
         } else if (event.data === "navigateAerobarrier") {
-            handleAction(() => wixLocation.to("/aerobarrier"));
+            handleAction(() => {
+                session.setItem("fromDuctCleaning", "true");
+                wixLocation.to("/aerobarrier");
+            });
         }
     });
 
