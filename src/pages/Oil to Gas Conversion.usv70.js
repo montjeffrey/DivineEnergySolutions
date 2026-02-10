@@ -4,7 +4,7 @@
 $w.onReady(function () {
     // Select the HTML component. 
     // IMPORTANT: Verify the ID '#html1' matches your actual HTML component ID in the Wix Editor.
-    const htmlComponent = $w('#html1');
+    const htmlComponent = $w('#homePrep');
 
     // Trigger animation when the component enters the viewport
     htmlComponent.onViewportEnter(() => {
