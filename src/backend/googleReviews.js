@@ -1,15 +1,15 @@
-/**
+﻿/**
  * src/backend/googleReviews.js
  *
  * Places API client + CMS sync for Divine Energy Solutions Google Reviews.
  *
  * Secrets required in Wix Secrets Manager:
- *   googleMapsApiKey  — already exists; restricted to Places API (New)
- *   DES_PLACE_ID      — ChIJ... string for the DES listing
+ *   googleMapsApiKey  â€” already exists; restricted to Places API (New)
+ *   DES_PLACE_ID      â€” ChIJ... string for the DES listing
  *
  * CMS Collections required:
- *   GoogleReviews    — stores individual reviews
- *   ReviewsSummary   — stores aggregate rating + count (single doc: _id = "des-summary")
+ *   GoogleReviews    â€” stores individual reviews
+ *   ReviewsSummary   â€” stores aggregate rating + count (single doc: _id = "des-summary")
  */
 
 import { getSecret } from 'wix-secrets-backend';
@@ -110,7 +110,7 @@ export async function syncReviewsToDatabase() {
             COLLECTION_SUMMARY,
             {
                 _id: SUMMARY_DOC_ID,
-                rating: summary.rating,
+                rating: String(summary.rating || 0),
                 userRatingCount: summary.userRatingCount,
                 lastSyncedAt: new Date().toISOString(),
             },
@@ -122,7 +122,7 @@ export async function syncReviewsToDatabase() {
         const filtered = summary.reviews.filter((r) => r.rating >= MIN_RATING);
 
         if (filtered.length === 0) {
-            console.warn('[reviews] Places API returned 0 reviews >=4 stars — skipping CMS update');
+            console.warn('[reviews] Places API returned 0 reviews >=4 stars â€” skipping CMS update');
             return { synced: 0 };
         }
 
@@ -145,7 +145,7 @@ export async function syncReviewsToDatabase() {
 
 /**
  * Returns reviews + aggregate from CMS for use by the page frontend.
- * No API key needed at page-load time — reads local Wix CMS only.
+ * No API key needed at page-load time â€” reads local Wix CMS only.
  */
 export async function getReviewsFromCMS(limit) {
     var maxItems = limit || 10;

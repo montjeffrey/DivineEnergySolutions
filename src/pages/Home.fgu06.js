@@ -70,9 +70,10 @@ async function loadReviews() {
         allReviews = summary.reviews || [];
         totalPages = Math.max(1, Math.ceil(allReviews.length / CARDS_PER_PAGE));
 
-        if (summary.rating > 0) {
-            $w('#aggregateRating').text = summary.rating.toFixed(1);
-            $w('#aggregateStars').text = formatStars(Math.round(summary.rating));
+        var aggRating = Number(summary.rating) || 0;
+        if (aggRating > 0) {
+            $w('#aggregateRating').text = aggRating.toFixed(1);
+            $w('#aggregateStars').text = formatStars(Math.round(aggRating));
             $w('#reviewCount').text =
                 'based on ' + summary.userRatingCount.toLocaleString() + ' Google reviews';
         }
