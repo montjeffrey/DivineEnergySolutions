@@ -87,10 +87,11 @@ async function fetchFromPlacesApi(placeId, apiKey) {
     },
   });
 
-  if (!res.ok) {
-    // Log status only — don't echo response body into logs (minor exfil guard).
-    throw new Error(`Places API HTTP ${res.status}`);
-  }
+ if (!res.ok) {
+  let errBody = '';
+  try { errBody = await res.text(); } catch (_) {}
+  throw new Error(`Places API HTTP ${res.status}: ${errBody}`);
+}
 
   const data = await res.json();
   const nowIso = new Date().toISOString();
