@@ -1,4 +1,4 @@
-﻿/**
+/**
  * src/backend/googleReviewsSync.js
  *
  * Backend-only module for syncing Google Places reviews into the Wix CMS.
@@ -41,7 +41,9 @@ const MAX_REVIEW_AGE_DAYS = 29;
 // --- Helpers -----------------------------------------------------------------
 
 function isValidRating(n) {
-  return Number.isInteger(n) && n >= 1 && n <= 5;
+  // Accept integer OR float whole-number ratings (e.g. 5.0) — both are valid
+  // from the Places API. Number.isInteger(5.0) is true in JS but be explicit.
+  return typeof n === 'number' && Number.isFinite(n) && n >= 1 && n <= 5;
 }
 
 function daysAgo(days) {
@@ -51,26 +53,40 @@ function daysAgo(days) {
 }
 
 function normalizeReview(raw, nowIso) {
+  // ID is the last segment of the Places API `name` path.
   const id = raw?.name ? raw.name.split('/').pop() : null;
   const rating = raw?.rating;
-  const text = raw?.text?.text ?? raw?.originalText?.text ?? '';
-  const authorName = raw?.authorAttribution?.displayName;
-  const publishedAt = raw?.publishTime;
 
-  if (!id || !isValidRating(rating) || !authorName || !publishedAt) {
+  // Without a stable ID we cannot upsert — skip the entry.
+  if (!id) return null;
+
+  // Without a valid rating the card is meaningless — skip.
+  if (!isValidRating(rating)) {
+    console.warn('[reviews] Skipping review — invalid rating:', rating, 'id:', id);
     return null;
   }
+
+  const text = raw?.text?.text ?? raw?.originalText?.text ?? '';
+
+  // Graceful fallbacks: don't discard otherwise-good reviews for cosmetic fields.
+  const authorName = raw?.authorAttribution?.displayName || 'A Google User';
+
+  // publishTime can be absent on older reviews — fall back to current time so
+  // the review still sorts reasonably. It will age out of the eviction window
+  // at the same 29-day cadence as any other review.
+  const publishedAt = raw?.publishTime
+    ? new Date(raw.publishTime)
+    : new Date(nowIso);
 
   return {
     _id: id,
     authorName,
-    authorPhoto: raw.authorAttribution?.photoUri ?? null,
-    authorUri: raw.authorAttribution?.uri ?? null,
+    authorPhoto: raw?.authorAttribution?.photoUri ?? null,
+    authorUri: raw?.authorAttribution?.uri ?? null,
     rating,
     text,
-    // Store as Date so CMS sorts correctly regardless of source format.
-    publishedAt: new Date(publishedAt),
-    relativeTime: raw.relativePublishTimeDescription ?? '',
+    publishedAt,
+    relativeTime: raw?.relativePublishTimeDescription ?? '',
     source: 'places_api',
     lastSeenAt: new Date(nowIso),
   };
@@ -87,18 +103,23 @@ async function fetchFromPlacesApi(placeId, apiKey) {
     },
   });
 
- if (!res.ok) {
-  let errBody = '';
-  try { errBody = await res.text(); } catch (_) {}
-  throw new Error(`Places API HTTP ${res.status}: ${errBody}`);
-}
+  if (!res.ok) {
+    let errBody = '';
+    try { errBody = await res.text(); } catch (_) {}
+    throw new Error(`Places API HTTP ${res.status}: ${errBody}`);
+  }
 
   const data = await res.json();
   const nowIso = new Date().toISOString();
 
-  const reviews = (data.reviews || [])
+  const rawReviews = data.reviews || [];
+  console.log(`[reviews] Places API response: rating=${data.rating} count=${data.userRatingCount} rawReviews=${rawReviews.length}`);
+
+  const reviews = rawReviews
     .map((r) => normalizeReview(r, nowIso))
     .filter((r) => r !== null);
+
+  console.log(`[reviews] After normalization: ${reviews.length} valid reviews`);
 
   return {
     rating: data.rating || 0,
@@ -108,17 +129,21 @@ async function fetchFromPlacesApi(placeId, apiKey) {
 }
 
 /**
- * TOS compliance: remove reviews that either
- *   (a) didn't come back in this sync's response, OR
- *   (b) haven't been seen in MAX_REVIEW_AGE_DAYS days
- * Either condition means the review was likely deleted or edited on Google.
+ * TOS compliance: evict reviews whose lastSeenAt is older than MAX_REVIEW_AGE_DAYS.
+ *
+ * We intentionally do NOT evict based on whether a review appeared in the current
+ * API response. The Places API (New) returns at most ~5 reviews per call and
+ * rotates which ones are shown — most cached reviews will never re-appear in a
+ * given sync window. Evicting on absence would drain the cache to ~5 entries max.
+ *
+ * Instead, lastSeenAt is refreshed whenever a review IS returned by the API
+ * (via bulkSave). Reviews that stop appearing will age out naturally at 29 days
+ * from their last sighting — which satisfies the Google TOS 30-day cache limit.
  */
-async function evictStaleReviews(currentReviewIds) {
+async function evictStaleReviews() {
   const cutoff = daysAgo(MAX_REVIEW_AGE_DAYS);
   let evicted = 0;
 
-  // Page through the collection — Wix query limit is 1000; at ~5 reviews
-  // per place we will never exceed this, but paginating defensively is cheap.
   let skip = 0;
   const PAGE_SIZE = 100;
   while (true) {
@@ -132,9 +157,10 @@ async function evictStaleReviews(currentReviewIds) {
 
     const toDelete = page.items
       .filter((item) => {
-        const notInResponse = !currentReviewIds.has(item._id);
+        // Evict only on age — no lastSeenAt means it was stored without the
+        // field (pre-migration), treat as potentially stale and evict.
         const tooOld = !item.lastSeenAt || new Date(item.lastSeenAt) < cutoff;
-        return notInResponse && tooOld;
+        return tooOld;
       })
       .map((item) => item._id);
 
@@ -207,8 +233,9 @@ export async function syncReviewsToDatabase() {
   }
 
   // --- 2. Filter + persist individual reviews ---
+  console.log(`[reviews] Raw reviews from API: ${summary.reviews.length}`);
   const filtered = summary.reviews.filter((r) => r.rating >= MIN_RATING);
-  const currentIds = new Set(filtered.map((r) => r._id));
+  console.log(`[reviews] After MIN_RATING(${MIN_RATING}) filter: ${filtered.length}`);
 
   let synced = 0;
   let bulkErrors = [];
@@ -235,10 +262,10 @@ export async function syncReviewsToDatabase() {
     console.warn('[reviews] Places API returned 0 reviews >= 4 stars');
   }
 
-  // --- 3. Evict stale reviews (TOS: 30-day cache cap + reflect deletions) ---
+  // --- 3. Evict stale reviews (TOS: 30-day cache cap) ---
   let evicted = 0;
   try {
-    evicted = await evictStaleReviews(currentIds);
+    evicted = await evictStaleReviews();
     if (evicted > 0) {
       console.log(`[reviews] Evicted ${evicted} stale review(s)`);
     }
