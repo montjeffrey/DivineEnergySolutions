@@ -164,13 +164,24 @@ export async function syncReviewsToDatabase() {
   console.log('[reviews] Starting sync from Places API...');
 
   // Fetch both secrets in parallel — elevate() required by wix-secrets-backend.v2.
-  const [apiKey, placeId] = await Promise.all([
+  // NOTE: v2 getSecretValue returns { value: string }, NOT a raw string (unlike v1 getSecret).
+  // Unwrapping is mandatory — passing the object as a fetch header value silently produces
+  // an empty X-Goog-Api-Key, which Google rejects as 403 PERMISSION_DENIED
+  // "Method doesn't allow unregistered callers".
+  const [apiKeyResponse, placeIdResponse] = await Promise.all([
     elevatedGetSecretValue('GOOGLE_PLACES_API_KEY'),
     elevatedGetSecretValue('DES_PLACE_ID'),
   ]);
 
-  if (!apiKey) throw new Error('Missing GOOGLE_PLACES_API_KEY secret');
-  if (!placeId) throw new Error('Missing DES_PLACE_ID secret');
+  const apiKey = apiKeyResponse?.value;
+  const placeId = placeIdResponse?.value;
+
+  if (typeof apiKey !== 'string' || apiKey.length === 0) {
+    throw new Error('Missing or invalid GOOGLE_PLACES_API_KEY secret');
+  }
+  if (typeof placeId !== 'string' || placeId.length === 0) {
+    throw new Error('Missing or invalid DES_PLACE_ID secret');
+  }
 
   const summary = await fetchFromPlacesApi(placeId, apiKey);
 
