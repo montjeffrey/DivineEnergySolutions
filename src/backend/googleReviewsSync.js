@@ -30,7 +30,22 @@ const COLLECTION_SUMMARY = 'ReviewsSummary';
 const SUMMARY_DOC_ID = 'des-summary';
 
 const PLACES_ENDPOINT = 'https://places.googleapis.com/v1';
-const FIELD_MASK = 'id,rating,userRatingCount,reviews';
+
+// Request every field we use. Explicit sub-field paths are more reliable than
+// just 'reviews' — some API versions return an empty reviews array when the
+// parent field is requested without sub-fields specified.
+const FIELD_MASK = [
+  'id',
+  'rating',
+  'userRatingCount',
+  'reviews.name',
+  'reviews.rating',
+  'reviews.text',
+  'reviews.originalText',
+  'reviews.authorAttribution',
+  'reviews.publishTime',
+  'reviews.relativePublishTimeDescription',
+].join(',');
 
 const MIN_RATING = 4;
 
@@ -95,6 +110,9 @@ function normalizeReview(raw, nowIso) {
 async function fetchFromPlacesApi(placeId, apiKey) {
   const url = `${PLACES_ENDPOINT}/places/${encodeURIComponent(placeId)}`;
 
+  console.log('[reviews] Fetching URL:', url);
+  console.log('[reviews] Field mask:', FIELD_MASK);
+
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -112,8 +130,13 @@ async function fetchFromPlacesApi(placeId, apiKey) {
   const data = await res.json();
   const nowIso = new Date().toISOString();
 
+  // DIAGNOSTIC: log the full top-level keys and raw response so we can see
+  // exactly what Google is returning. Remove this block once reviews are flowing.
+  console.log('[reviews] Response top-level keys:', Object.keys(data).join(', '));
+  console.log('[reviews] Full response (TEMP DIAGNOSTIC):', JSON.stringify(data).slice(0, 2000));
+
   const rawReviews = data.reviews || [];
-  console.log(`[reviews] Places API response: rating=${data.rating} count=${data.userRatingCount} rawReviews=${rawReviews.length}`);
+  console.log(`[reviews] Places API: rating=${data.rating} count=${data.userRatingCount} rawReviews=${rawReviews.length}`);
 
   const reviews = rawReviews
     .map((r) => normalizeReview(r, nowIso))
@@ -209,6 +232,9 @@ export async function syncReviewsToDatabase() {
   if (typeof placeId !== 'string' || placeId.length === 0) {
     throw new Error('Missing or invalid DES_PLACE_ID secret');
   }
+
+  // DIAGNOSTIC: confirm the place ID looks right (first/last 4 chars only — don't log full key)
+  console.log(`[reviews] PlaceID starts with: ${placeId.slice(0, 6)}... length=${placeId.length}`);
 
   const summary = await fetchFromPlacesApi(placeId, apiKey);
 
